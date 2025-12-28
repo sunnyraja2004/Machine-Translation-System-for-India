@@ -1,150 +1,135 @@
-This repository contains my submission for the CS779 Competition: Machine Translation System for India, conducted at IIT Kanpur.
-The goal was to build train-from-scratch Neural Machine Translation (NMT) systems for English → Hindi (EN→HI) and English → Bengali (EN→BN) under strict constraints.
+# CS779(Natural Language Processing) Competition Submission: Machine Translation System for India 🇮🇳
 
-👤 Author
+This repository contains my submission for the **CS779(Natural Language Processing) Competition: Machine Translation System for India**, conducted at **IIT Kanpur**.  
 
-Name: Sunny Raja Prasad
+**Goal:** Build **train-from-scratch Neural Machine Translation (NMT)** systems for **English → Hindi (EN→HI)** and **English → Bengali (EN→BN)** under strict constraints.
 
-Roll No: 218171078
+---
 
-Institute: Indian Institute of Technology Kanpur
+## 👤 Author
 
-Email: sunnyrp21@iitk.ac.in
+- **Name:** Sunny Raja Prasad  
+- **Roll No:** 218171078  
+- **Institute:** Indian Institute of Technology Kanpur  
+- **Email:** sunnyrp21@iitk.ac.in  
 
-📌 Project Overview
+---
 
-The task involved building an encoder–decoder NMT system using only the provided data, without any pre-trained language models, and with PyTorch-only implementations.
+## 📌 Project Overview
 
-Models Explored
+The task involved building an **encoder–decoder NMT system** using only the provided data, **without any pre-trained language models**, with **PyTorch-only implementations**.  
 
-Seq2Seq (no attention)
+### Models Explored
 
-Seq2Seq + Attention
+- **Seq2Seq (no attention)**  
+- **Seq2Seq + Attention**  
+- **Transformer (trained from scratch)**  
 
-Transformer (trained from scratch)
+✅ The final submitted model was an **8-layer Convolutional Sequence-to-Sequence (ConvS2S) architecture with attention**.
 
-✅ The final submitted model was an 8-layer Convolutional Sequence-to-Sequence (ConvS2S) architecture with attention.
+---
 
-🏆 Competition Results
-Phase	Rank	chrF++	ROUGE	BLEU
-Development	31	0.385	0.404	0.138
-Test	46	0.390	0.418	0.143
+## 🏆 Competition Results
 
-Codabench Username: s_218171078
+| Phase | Rank | chrF++ | ROUGE | BLEU |
+|-------|------|--------|-------|------|
+| Development | 31 | 0.385 | 0.404 | 0.138 |
+| Test | 46 | 0.390 | 0.418 | 0.143 |
 
-Training Submissions: 18
+- **Codabench Username:** s_218171078  
+- **Training Submissions:** 18  
+- **Test Submissions:** 7  
 
-Test Submissions: 7
+---
 
-⚙️ Key Features
+## ⚙️ Key Features
 
-Architecture: Convolutional Seq2Seq (ConvS2S)
+- **Architecture:** Convolutional Seq2Seq (ConvS2S)  
+- **Encoder / Decoder:** 8 convolutional layers each  
+- **Embedding Dimension:** 512  
+- **Hidden Dimension:** 512  
+- **Kernel Size:** 3  
+- **Attention:** Scaled dot-product attention at every decoder layer  
+- **Decoding:** Batched greedy decoding  
+- **Framework:** PyTorch (**from scratch**)  
 
-Encoder / Decoder: 8 convolutional layers each
+---
 
-Embedding Dimension: 512
+## 🧹 Data & Preprocessing
 
-Hidden Dimension: 512
+- **Languages:** EN→HI, EN→BN  
+- **Tokenization:** Word-level (`nltk.word_tokenize`)  
+- **Vocabulary:** Minimum frequency = 2  
+- **Special Tokens:** `<pad>`, `<sos>`, `<eos>`, `<unk>`  
+- **Max Sequence Length:** 64  
 
-Kernel Size: 3
+### Text Cleaning Steps
 
-Attention: Scaled dot-product attention at every decoder layer
+- Lowercasing  
+- Unicode normalization (NFC)  
+- Removal of punctuation and digits  
+- Whitespace normalization  
 
-Decoding: Batched greedy decoding
+⚠️ Word-level tokenization caused a **large OOV (Out-of-Vocabulary) problem**, especially for **named entities**.
 
-Framework: PyTorch (from scratch)
+---
 
-🧹 Data & Preprocessing
+## 🏋️ Training Details
 
-Languages: EN→HI, EN→BN
+- **Loss:** Cross-Entropy (padding ignored)  
+- **Optimizer:** Adam  
+- **Learning Rate:** 5e-4  
+- **LR Scheduler:** ReduceLROnPlateau  
+- **Batch Size:** 32  
+- **Dropout:** 0.25  
+- **Gradient Clipping:** ‖g‖₂ ≤ 1  
+- **Teacher Forcing:** 1.0 (constant)  
+- **Checkpointing:** Best validation model only  
 
-Tokenization: Word-level (nltk.word_tokenize)
+---
 
-Vocabulary: Minimum frequency = 2
+## 🚀 Inference
 
-Special Tokens: <PAD>, <SOS>, <EOS>, <UNK>
+- **Decoding Strategy:** Greedy search  
+- **Stopping Criterion:** `<eos>` token or max length  
+- **Detokenization:** Simple whitespace join  
 
-Max Sequence Length: 64
+⚠️ Greedy decoding was chosen for **speed**, but it introduces **repetition** and **early-stopping errors**.
 
-Text Cleaning Steps
+---
 
-Lowercasing
+## 🔍 Error Analysis Summary
 
-Unicode normalization (NFC)
+### Main Error Sources
 
-Removal of punctuation and digits
+- **OOV & Named Entities** — due to word-level vocabulary  
+- **Missing digits & punctuation** — removed during preprocessing  
+- **Repetitions & brevity** — caused by greedy decoding  
+- **Long-distance dependencies** — limited by convolution kernel size  
 
-Whitespace normalization
+---
 
-⚠️ Note: Word-level tokenization caused a large OOV (Out-of-Vocabulary) problem, especially for named entities.
+## 📚 Lessons Learned
 
-🏋️ Training Details
+- **Preprocessing choices are critical** — removing punctuation and digits significantly harms translation quality  
+- **Word-level tokenization is a bottleneck** — it leads to massive **OOV issues**  
+- **Greedy decoding trades quality for speed** — **beam search** would substantially improve results  
 
-Loss: Cross-Entropy (padding ignored)
+---
 
-Optimizer: Adam
+## 🔮 Future Improvements
 
-Learning Rate: 5e-4
+- Replace word-level tokenization with **SentencePiece (BPE/Unigram)**  
+- Implement **Beam Search** with length normalization  
+- Preserve **punctuation and digits**  
+- Explore **copy/transliteration mechanisms** for **named entities**  
+- Compare optimized **ConvS2S** vs **BiLSTM + Attention** with **subwords**  
 
-LR Scheduler: ReduceLROnPlateau
+---
 
-Batch Size: 32
+## 📖 References
 
-Dropout: 0.25
-
-Gradient Clipping: ‖g‖₂ ≤ 1
-
-Teacher Forcing: 1.0 (constant)
-
-Checkpointing: Best validation model only
-
-🚀 Inference
-
-Decoding Strategy: Greedy search
-
-Stopping Criterion: <EOS> token or max length
-
-Detokenization: Simple whitespace join
-
-⚠️ Greedy decoding was chosen for speed, but it introduces repetition and early-stopping errors.
-
-🔍 Error Analysis Summary
-Main Error Sources
-
-OOV & Named Entities — due to word-level vocabulary
-
-Missing digits & punctuation — removed during preprocessing
-
-Repetitions & brevity — caused by greedy decoding
-
-Long-distance dependencies — limited by convolution kernel size
-
-📚 Lessons Learned
-
-Preprocessing choices are critical — removing punctuation and digits significantly harms translation quality.
-
-Word-level tokenization is a bottleneck — it leads to massive OOV issues.
-
-Greedy decoding trades quality for speed — beam search would substantially improve results.
-
-🔮 Future Improvements
-
-Replace word-level tokenization with SentencePiece (BPE/Unigram)
-
-Implement Beam Search with length normalization.
-
-Preserve punctuation and digits.s
-
-Explore copy/transliteration mechanisms for named entities
-
-Compare optimized ConvS2S vs BiLSTM + Attention with subwords.
-
-📖 References
-
-Sutskever et al., Sequence to Sequence Learning with Neural Networks
-
-Bahdanau et al., Neural Machine Translation by Jointly Learning to Align and Translate
-
-Vaswani et al., Attention Is All You Need
-
-Kunchukuttan & Bhattacharyya, MT for Indian Language.
+- Sutskever et al., *Sequence to Sequence Learning with Neural Networks*  
+- Bahdanau et al., *Neural Machine Translation by Jointly Learning to Align and Translate*  
+- Vaswani et al., *Attention Is All You Need*  
+- Kunchukuttan & Bhattacharyya, *MT for Indian Language*  
